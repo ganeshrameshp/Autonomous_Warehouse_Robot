@@ -2,7 +2,7 @@
 <sdf version="1.6">
   <world name="warehouse_world">
 
-       <include>
+    <include>
       <uri>model://sun</uri>
     </include>
 
@@ -11,58 +11,108 @@
       <static>true</static>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>12 12 0.1</size></box></geometry>
+          <geometry><box><size>36 36 0.1</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>12 12 0.1</size></box></geometry>
+          <geometry><box><size>36 36 0.1</size></box></geometry>
         </visual>
       </link>
     </model>
 
+    <!-- OUTER WALLS -->
     <model name="outer_walls">
       <static>true</static>
-      <link name="north"><pose>0 6 0.75 0 0 0</pose><collision name="c"><geometry><box><size>12 0.1 1.5</size></box></geometry></collision><visual name="v"><geometry><box><size>12 0.1 1.5</size></box></geometry></visual></link>
-      <link name="south"><pose>0 -6 0.75 0 0 0</pose><collision name="c"><geometry><box><size>12 0.1 1.5</size></box></geometry></collision><visual name="v"><geometry><box><size>12 0.1 1.5</size></box></geometry></visual></link>
-      <link name="east"><pose>6 0 0.75 0 0 0</pose><collision name="c"><geometry><box><size>0.1 12 1.5</size></box></geometry></collision><visual name="v"><geometry><box><size>0.1 12 1.5</size></box></geometry></visual></link>
-      <link name="west"><pose>-6 0 0.75 0 0 0</pose><collision name="c"><geometry><box><size>0.1 12 1.5</size></box></geometry></collision><visual name="v"><geometry><box><size>0.1 12 1.5</size></box></geometry></visual></link>
+
+      <link name="north">
+        <pose>0 18 0.75 0 0 0</pose>
+        <collision name="c"><geometry><box><size>36 0.1 1.5</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>36 0.1 1.5</size></box></geometry></visual>
+      </link>
+
+      <link name="south">
+        <pose>0 -18 0.75 0 0 0</pose>
+        <collision name="c"><geometry><box><size>36 0.1 1.5</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>36 0.1 1.5</size></box></geometry></visual>
+      </link>
+
+      <link name="east">
+        <pose>18 0 0.75 0 0 0</pose>
+        <collision name="c"><geometry><box><size>0.1 36 1.5</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.1 36 1.5</size></box></geometry></visual>
+      </link>
+
+      <link name="west">
+        <pose>-18 0 0.75 0 0 0</pose>
+        <collision name="c"><geometry><box><size>0.1 36 1.5</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.1 36 1.5</size></box></geometry></visual>
+      </link>
+
     </model>
 
+    <!-- PARTITION ROW -->
     <model name="pr_wall_outer_left">
       <static>true</static>
-      <pose>-5 2 0.75 0 0 0</pose> 
-      <link name="link"><collision name="c"><geometry><box><size>2 0.1 1.5</size></box></geometry></collision><visual name="v"><geometry><box><size>2 0.1 1.5</size></box></geometry></visual></link>
+      <pose>-15 6 0.75 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>6 0.1 1.5</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>6 0.1 1.5</size></box></geometry></visual>
+      </link>
     </model>
+
     <model name="pr_wall_center">
       <static>true</static>
-      <pose>0 2 0.75 0 0 0</pose>
-      <link name="link"><collision name="c"><geometry><box><size>6 0.1 1.5</size></box></geometry></collision><visual name="v"><geometry><box><size>6 0.1 1.5</size></box></geometry></visual></link>
+      <pose>0 6 0.75 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>18 0.1 1.5</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>18 0.1 1.5</size></box></geometry></visual>
+      </link>
     </model>
+
     <model name="pr_wall_outer_right">
       <static>true</static>
-      <pose>5 2 0.75 0 0 0</pose>
-      <link name="link"><collision name="c"><geometry><box><size>2 0.1 1.5</size></box></geometry></collision><visual name="v"><geometry><box><size>2 0.1 1.5</size></box></geometry></visual></link>
+      <pose>15 6 0.75 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>6 0.1 1.5</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>6 0.1 1.5</size></box></geometry></visual>
+      </link>
     </model>
 
+    <!-- FRONT LEFT ROOM -->
     <model name="fr_top_wall">
       <static>true</static>
-      <pose>-4.25 -1.5 0.75 0 0 0</pose>
-      <link name="link"><collision name="c"><geometry><box><size>3.5 0.1 1.5</size></box></geometry></collision><visual name="v"><geometry><box><size>3.5 0.1 1.5</size></box></geometry></visual></link>
-    </model>
-    <model name="fr_inner_wall">
-      <static>true</static>
-      <pose>-1.5 -3.75 0.75 0 0 0</pose>
-      <link name="link"><collision name="c"><geometry><box><size>0.1 4.5 1.5</size></box></geometry></collision><visual name="v"><geometry><box><size>0.1 4.5 1.5</size></box></geometry></visual></link>
+      <pose>-12.75 -4.5 0.75 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>10.5 0.1 1.5</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>10.5 0.1 1.5</size></box></geometry></visual>
+      </link>
     </model>
 
+    <model name="fr_inner_wall">
+      <static>true</static>
+      <pose>-4.5 -11.25 0.75 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.1 13.5 1.5</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.1 13.5 1.5</size></box></geometry></visual>
+      </link>
+    </model>
+
+    <!-- FRONT RIGHT ROOM -->
     <model name="sr_top_wall">
       <static>true</static>
-      <pose>4.25 -1.5 0.75 0 0 0</pose>
-      <link name="link"><collision name="c"><geometry><box><size>3.5 0.1 1.5</size></box></geometry></collision><visual name="v"><geometry><box><size>3.5 0.1 1.5</size></box></geometry></visual></link>
+      <pose>12.75 -4.5 0.75 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>10.5 0.1 1.5</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>10.5 0.1 1.5</size></box></geometry></visual>
+      </link>
     </model>
+
     <model name="sr_inner_wall">
       <static>true</static>
-      <pose>1.5 -3.75 0.75 0 0 0</pose>
-      <link name="link"><collision name="c"><geometry><box><size>0.1 4.5 1.5</size></box></geometry></collision><visual name="v"><geometry><box><size>0.1 4.5 1.5</size></box></geometry></visual></link>
+      <pose>4.5 -11.25 0.75 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.1 13.5 1.5</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.1 13.5 1.5</size></box></geometry></visual>
+      </link>
     </model>
 
   </world>

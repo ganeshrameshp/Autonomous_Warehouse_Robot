@@ -1,7 +1,8 @@
 import os
 
+from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription, SetEnvironmentVariable
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
@@ -11,6 +12,11 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
+    package_share_dir = get_package_share_directory("warehouse_robot_description")
+    package_model_dir = os.path.dirname(package_share_dir)
+    workspace_install_dir = os.path.dirname(
+        os.path.dirname(os.path.dirname(package_share_dir))
+    )
     package_share = FindPackageShare("warehouse_robot_description")
     gazebo_launch = PathJoinSubstitution(
         [FindPackageShare("gazebo_ros"), "launch", "gazebo.launch.py"]
@@ -40,6 +46,7 @@ def generate_launch_description():
     use_rviz = LaunchConfiguration("use_rviz")
     use_scan_conversion = LaunchConfiguration("use_scan_conversion")
     use_sim_time = LaunchConfiguration("use_sim_time")
+    use_teleop = LaunchConfiguration("use_teleop")
     use_sim_time_param = ParameterValue(use_sim_time, value_type=bool)
 
     robot_state_publisher = Node(
@@ -92,28 +99,42 @@ def generate_launch_description():
         ],
     )
 
+    teleop = ExecuteProcess(
+        cmd=[
+            "x-terminal-emulator",
+            "-T",
+            "Warehouse Robot Teleop",
+            "-e",
+            "bash",
+            "-lc",
+            (
+                "source /opt/ros/humble/setup.bash && "
+                f"source {workspace_install_dir}/setup.bash && "
+                "ros2 run teleop_twist_keyboard teleop_twist_keyboard"
+            ),
+        ],
+        condition=IfCondition(use_teleop),
+        output="screen",
+    )
+
     gazebo = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(
-        PathJoinSubstitution([
-            FindPackageShare("gazebo_ros"),
-            "launch",
-            "gazebo.launch.py"
-        ])
-    ),
-    launch_arguments={
-        "gui": "true",
-        "world": default_world,
-    }.items(),
-)
+        PythonLaunchDescriptionSource(gazebo_launch),
+        launch_arguments={
+            "gui": gui,
+            "world": world,
+        }.items(),
+    )
 
     gazebo_model_path = os.pathsep.join(
         [
+            package_model_dir,
             "/usr/share/gazebo-11/models",
             os.environ.get("GAZEBO_MODEL_PATH", ""),
         ]
     )
     gazebo_resource_path = os.pathsep.join(
         [
+            package_share_dir,
             "/usr/share/gazebo-11",
             "/usr/share/gazebo-11/worlds",
             os.environ.get("GAZEBO_RESOURCE_PATH", ""),
@@ -166,6 +187,11 @@ def generate_launch_description():
             default_value="true",
             description="Use Gazebo simulation time.",
         ),
+        DeclareLaunchArgument(
+            "use_teleop",
+            default_value="true",
+            description="Open a terminal and start keyboard teleop automatically.",
+        ),
         SetEnvironmentVariable("GAZEBO_MODEL_PATH", gazebo_model_path),
         SetEnvironmentVariable("GAZEBO_RESOURCE_PATH", gazebo_resource_path),
         gazebo,
@@ -173,4 +199,5 @@ def generate_launch_description():
         spawn_robot,
         pointcloud_to_laserscan,
         rviz,
+        teleop,
     ])
