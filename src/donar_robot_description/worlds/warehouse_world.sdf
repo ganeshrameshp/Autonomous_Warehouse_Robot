@@ -205,112 +205,6 @@
       </link>
     </model>
 
-    <!-- Collision-only proxy for the imported warehouse mesh.
-         The STL is fine visually, but its raw mesh collision is too unreliable
-         for thin walls and shelving, so use simple boxes for physics. -->
-    <model name="warehouse_collision_proxy">
-      <static>true</static>
-
-      <link name="left_room_outer_wall">
-        <pose>-12.0 9.6 0.75 0 0 0</pose>
-        <collision name="collision">
-          <geometry>
-            <box>
-              <size>0.22 4.0 1.5</size>
-            </box>
-          </geometry>
-        </collision>
-      </link>
-
-      <link name="left_room_back_wall">
-        <pose>-10.2 11.45 0.75 0 0 0</pose>
-        <collision name="collision">
-          <geometry>
-            <box>
-              <size>3.8 0.22 1.5</size>
-            </box>
-          </geometry>
-        </collision>
-      </link>
-
-      <link name="left_room_inner_wall">
-        <pose>-8.55 9.6 0.75 0 0 0</pose>
-        <collision name="collision">
-          <geometry>
-            <box>
-              <size>0.22 4.0 1.5</size>
-            </box>
-          </geometry>
-        </collision>
-      </link>
-
-      <link name="right_room_outer_wall">
-        <pose>12.0 9.6 0.75 0 0 0</pose>
-        <collision name="collision">
-          <geometry>
-            <box>
-              <size>0.22 4.0 1.5</size>
-            </box>
-          </geometry>
-        </collision>
-      </link>
-
-      <link name="right_room_back_wall">
-        <pose>10.2 11.45 0.75 0 0 0</pose>
-        <collision name="collision">
-          <geometry>
-            <box>
-              <size>3.8 0.22 1.5</size>
-            </box>
-          </geometry>
-        </collision>
-      </link>
-
-      <link name="right_room_inner_wall">
-        <pose>8.55 9.6 0.75 0 0 0</pose>
-        <collision name="collision">
-          <geometry>
-            <box>
-              <size>0.22 4.0 1.5</size>
-            </box>
-          </geometry>
-        </collision>
-      </link>
-
-      <link name="shelf_block_left">
-        <pose>-2.2 5.45 0.8 0 0 0</pose>
-        <collision name="collision">
-          <geometry>
-            <box>
-              <size>0.85 4.8 1.6</size>
-            </box>
-          </geometry>
-        </collision>
-      </link>
-
-      <link name="shelf_block_center">
-        <pose>0.15 5.45 0.8 0 0 0</pose>
-        <collision name="collision">
-          <geometry>
-            <box>
-              <size>0.85 4.8 1.6</size>
-            </box>
-          </geometry>
-        </collision>
-      </link>
-
-      <link name="shelf_block_right">
-        <pose>2.5 5.45 0.8 0 0 0</pose>
-        <collision name="collision">
-          <geometry>
-            <box>
-              <size>0.85 4.8 1.6</size>
-            </box>
-          </geometry>
-        </collision>
-      </link>
-    </model>
-
     <model name="door_rack_obstacles">
       <static>true</static>
 
@@ -476,14 +370,6 @@
           </material>
         </visual>
 
-        <collision name="collision">
-          <geometry>
-            <mesh>
-              <uri>../meshes/environment/env.stl</uri>
-              <scale>0.00005 0.00005 0.00005</scale>
-            </mesh>
-          </geometry>
-        </collision>
       </link>
     </model>
 
