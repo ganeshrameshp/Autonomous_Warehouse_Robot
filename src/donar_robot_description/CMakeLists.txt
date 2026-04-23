@@ -21,6 +21,18 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}
 )
 
+install(PROGRAMS
+  scripts/cmd_vel_relay.py
+  scripts/dynamic_obstacle_controller.py
+  scripts/initial_pose_publisher.py
+  scripts/mission_planner.py
+  scripts/nav2_activator.py
+  scripts/odometry_tf_broadcaster.py
+  scripts/robot_description_publisher.py
+  scripts/scan_relay.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()

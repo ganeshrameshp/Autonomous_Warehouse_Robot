@@ -73,8 +73,15 @@
     <model name="floor_pad">
       <static>true</static>
       <link name="pad_link">
+        <pose>0 2.2 0.001 0 0 0</pose>
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>28.4 21.4 0.002</size>
+            </box>
+          </geometry>
+        </collision>
         <visual name="visual">
-          <pose>0 2.2 0.001 0 0 0</pose>
           <geometry>
             <box>
               <size>28.4 21.4 0.002</size>
@@ -201,6 +208,14 @@
             <specular>0.02 0.02 0.02 1</specular>
           </material>
         </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh>
+              <uri>../meshes/environment/env.stl</uri>
+              <scale>0.00005 0.00005 0.00005</scale>
+            </mesh>
+          </geometry>
+        </collision>
 
       </link>
     </model>
@@ -423,6 +438,30 @@
             </box>
           </geometry>
         </collision>
+        <collision name="mid_left_post_collision">
+          <pose>-0.675 0 0.6 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.05 1.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <collision name="mid_post_collision">
+          <pose>0 0 0.6 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.05 1.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <collision name="mid_right_post_collision">
+          <pose>0.675 0 0.6 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.05 1.2</size>
+            </box>
+          </geometry>
+        </collision>
         <visual name="panel_mesh">
           <pose>0 0 0.6 0 0 0</pose>
           <geometry>
@@ -532,6 +571,30 @@
             </box>
           </geometry>
         </collision>
+        <collision name="rear_mid_post_collision">
+          <pose>-1.275 0 0.6 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.05 1.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <collision name="mid_post_collision">
+          <pose>0 0 0.6 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.05 1.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <collision name="front_mid_post_collision">
+          <pose>1.275 0 0.6 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.05 1.2</size>
+            </box>
+          </geometry>
+        </collision>
         <visual name="panel_mesh">
           <pose>0 0 0.6 0 0 0</pose>
           <geometry>
@@ -632,17 +695,17 @@
       </link>
 
       <link name="front_run">
-        <pose>0.4 2.55 0 0 0 0</pose>
+        <pose>0 2.55 0 0 0 0</pose>
         <collision name="panel_collision">
           <pose>0 0 0.6 0 0 0</pose>
           <geometry>
             <box>
-              <size>1.9 0.03 1.15</size>
+              <size>2.7 0.03 1.15</size>
             </box>
           </geometry>
         </collision>
         <collision name="left_post_collision">
-          <pose>-0.95 0 0.6 0 0 0</pose>
+          <pose>-1.35 0 0.6 0 0 0</pose>
           <geometry>
             <box>
               <size>0.06 0.06 1.2</size>
@@ -650,7 +713,7 @@
           </geometry>
         </collision>
         <collision name="right_post_collision">
-          <pose>0.95 0 0.6 0 0 0</pose>
+          <pose>1.35 0 0.6 0 0 0</pose>
           <geometry>
             <box>
               <size>0.06 0.06 1.2</size>
@@ -661,7 +724,7 @@
           <pose>0 0 0.6 0 0 0</pose>
           <geometry>
             <box>
-              <size>1.75 0.0125 1.025</size>
+              <size>2.55 0.0125 1.025</size>
             </box>
           </geometry>
           <material>
@@ -674,7 +737,7 @@
           <pose>0 0 1.175 0 0 0</pose>
           <geometry>
             <box>
-              <size>1.9 0.04 0.04</size>
+              <size>2.7 0.04 0.04</size>
             </box>
           </geometry>
           <material>
@@ -686,7 +749,7 @@
           <pose>0 0 0.075 0 0 0</pose>
           <geometry>
             <box>
-              <size>1.9 0.04 0.04</size>
+              <size>2.7 0.04 0.04</size>
             </box>
           </geometry>
           <material>
@@ -695,7 +758,7 @@
           </material>
         </visual>
         <visual name="left_post">
-          <pose>-0.95 0 0.6 0 0 0</pose>
+          <pose>-1.35 0 0.6 0 0 0</pose>
           <geometry>
             <box>
               <size>0.06 0.06 1.2</size>
@@ -707,96 +770,7 @@
           </material>
         </visual>
         <visual name="right_post">
-          <pose>0.95 0 0.6 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>0.06 0.06 1.2</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.88 0.76 0.18 1</ambient>
-            <diffuse>0.95 0.82 0.2 1</diffuse>
-          </material>
-        </visual>
-      </link>
-
-      <link name="left_return">
-        <pose>-1.375 1.075 0 0 0 1.5708</pose>
-        <collision name="panel_collision">
-          <pose>0 0 0.6 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>3.1 0.03 1.15</size>
-            </box>
-          </geometry>
-        </collision>
-        <collision name="rear_post_collision">
-          <pose>-1.55 0 0.6 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>0.06 0.06 1.2</size>
-            </box>
-          </geometry>
-        </collision>
-        <collision name="front_post_collision">
-          <pose>1.55 0 0.6 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>0.06 0.06 1.2</size>
-            </box>
-          </geometry>
-        </collision>
-        <visual name="panel_mesh">
-          <pose>0 0 0.6 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>2.95 0.0125 1.025</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.75 0.77 0.78 0.25</ambient>
-            <diffuse>0.82 0.84 0.85 0.25</diffuse>
-            <specular>0.1 0.1 0.1 0.2</specular>
-          </material>
-        </visual>
-        <visual name="top_rail">
-          <pose>0 0 1.175 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>3.1 0.04 0.04</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.88 0.76 0.18 1</ambient>
-            <diffuse>0.95 0.82 0.2 1</diffuse>
-          </material>
-        </visual>
-        <visual name="bottom_rail">
-          <pose>0 0 0.075 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>3.1 0.04 0.04</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.88 0.76 0.18 1</ambient>
-            <diffuse>0.95 0.82 0.2 1</diffuse>
-          </material>
-        </visual>
-        <visual name="rear_post">
-          <pose>-1.55 0 0.6 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>0.06 0.06 1.2</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.88 0.76 0.18 1</ambient>
-            <diffuse>0.95 0.82 0.2 1</diffuse>
-          </material>
-        </visual>
-        <visual name="front_post">
-          <pose>1.55 0 0.6 0 0 0</pose>
+          <pose>1.35 0 0.6 0 0 0</pose>
           <geometry>
             <box>
               <size>0.06 0.06 1.2</size>
@@ -942,6 +916,30 @@
             </box>
           </geometry>
         </collision>
+        <collision name="mid_left_post_collision">
+          <pose>-0.675 0 0.6 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.05 1.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <collision name="mid_post_collision">
+          <pose>0 0 0.6 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.05 1.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <collision name="mid_right_post_collision">
+          <pose>0.675 0 0.6 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.05 1.2</size>
+            </box>
+          </geometry>
+        </collision>
         <visual name="panel_mesh">
           <pose>0 0 0.6 0 0 0</pose>
           <geometry>
@@ -1051,6 +1049,30 @@
             </box>
           </geometry>
         </collision>
+        <collision name="rear_mid_post_collision">
+          <pose>-1.275 0 0.6 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.05 1.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <collision name="mid_post_collision">
+          <pose>0 0 0.6 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.05 1.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <collision name="front_mid_post_collision">
+          <pose>1.275 0 0.6 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.05 1.2</size>
+            </box>
+          </geometry>
+        </collision>
         <visual name="panel_mesh">
           <pose>0 0 0.6 0 0 0</pose>
           <geometry>
@@ -1151,17 +1173,17 @@
       </link>
 
       <link name="front_run">
-        <pose>-0.4 2.55 0 0 0 0</pose>
+        <pose>0 2.55 0 0 0 0</pose>
         <collision name="panel_collision">
           <pose>0 0 0.6 0 0 0</pose>
           <geometry>
             <box>
-              <size>1.9 0.03 1.15</size>
+              <size>2.7 0.03 1.15</size>
             </box>
           </geometry>
         </collision>
         <collision name="left_post_collision">
-          <pose>-0.95 0 0.6 0 0 0</pose>
+          <pose>-1.35 0 0.6 0 0 0</pose>
           <geometry>
             <box>
               <size>0.06 0.06 1.2</size>
@@ -1169,7 +1191,7 @@
           </geometry>
         </collision>
         <collision name="right_post_collision">
-          <pose>0.95 0 0.6 0 0 0</pose>
+          <pose>1.35 0 0.6 0 0 0</pose>
           <geometry>
             <box>
               <size>0.06 0.06 1.2</size>
@@ -1180,7 +1202,7 @@
           <pose>0 0 0.6 0 0 0</pose>
           <geometry>
             <box>
-              <size>1.75 0.0125 1.025</size>
+              <size>2.55 0.0125 1.025</size>
             </box>
           </geometry>
           <material>
@@ -1193,7 +1215,7 @@
           <pose>0 0 1.175 0 0 0</pose>
           <geometry>
             <box>
-              <size>1.9 0.04 0.04</size>
+              <size>2.7 0.04 0.04</size>
             </box>
           </geometry>
           <material>
@@ -1205,7 +1227,7 @@
           <pose>0 0 0.075 0 0 0</pose>
           <geometry>
             <box>
-              <size>1.9 0.04 0.04</size>
+              <size>2.7 0.04 0.04</size>
             </box>
           </geometry>
           <material>
@@ -1214,7 +1236,7 @@
           </material>
         </visual>
         <visual name="left_post">
-          <pose>-0.95 0 0.6 0 0 0</pose>
+          <pose>-1.35 0 0.6 0 0 0</pose>
           <geometry>
             <box>
               <size>0.06 0.06 1.2</size>
@@ -1226,96 +1248,7 @@
           </material>
         </visual>
         <visual name="right_post">
-          <pose>0.95 0 0.6 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>0.06 0.06 1.2</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.88 0.76 0.18 1</ambient>
-            <diffuse>0.95 0.82 0.2 1</diffuse>
-          </material>
-        </visual>
-      </link>
-
-      <link name="right_return">
-        <pose>1.375 1.075 0 0 0 1.5708</pose>
-        <collision name="panel_collision">
-          <pose>0 0 0.6 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>3.1 0.03 1.15</size>
-            </box>
-          </geometry>
-        </collision>
-        <collision name="rear_post_collision">
-          <pose>-1.55 0 0.6 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>0.06 0.06 1.2</size>
-            </box>
-          </geometry>
-        </collision>
-        <collision name="front_post_collision">
-          <pose>1.55 0 0.6 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>0.06 0.06 1.2</size>
-            </box>
-          </geometry>
-        </collision>
-        <visual name="panel_mesh">
-          <pose>0 0 0.6 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>2.95 0.0125 1.025</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.75 0.77 0.78 0.25</ambient>
-            <diffuse>0.82 0.84 0.85 0.25</diffuse>
-            <specular>0.1 0.1 0.1 0.2</specular>
-          </material>
-        </visual>
-        <visual name="top_rail">
-          <pose>0 0 1.175 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>3.1 0.04 0.04</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.88 0.76 0.18 1</ambient>
-            <diffuse>0.95 0.82 0.2 1</diffuse>
-          </material>
-        </visual>
-        <visual name="bottom_rail">
-          <pose>0 0 0.075 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>3.1 0.04 0.04</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.88 0.76 0.18 1</ambient>
-            <diffuse>0.95 0.82 0.2 1</diffuse>
-          </material>
-        </visual>
-        <visual name="rear_post">
-          <pose>-1.55 0 0.6 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>0.06 0.06 1.2</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.88 0.76 0.18 1</ambient>
-            <diffuse>0.95 0.82 0.2 1</diffuse>
-          </material>
-        </visual>
-        <visual name="front_post">
-          <pose>1.55 0 0.6 0 0 0</pose>
+          <pose>1.35 0 0.6 0 0 0</pose>
           <geometry>
             <box>
               <size>0.06 0.06 1.2</size>

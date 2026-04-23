@@ -1,0 +1,28 @@
+{
+  "goals": [
+    {
+      "name": "pickup_zone",
+      "x": -8.5,
+      "y": -4.8,
+      "yaw": 1.57
+    },
+    {
+      "name": "aisle_entry",
+      "x": -7.0,
+      "y": -1.0,
+      "yaw": 1.57
+    },
+    {
+      "name": "shelf_left",
+      "x": -5.0,
+      "y": 2.2,
+      "yaw": 0.0
+    },
+    {
+      "name": "shelf_right",
+      "x": 3.5,
+      "y": 2.2,
+      "yaw": 3.14
+    }
+  ]
+}

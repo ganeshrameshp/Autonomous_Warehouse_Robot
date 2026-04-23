@@ -223,13 +223,13 @@
 </gazebo>
 
 <gazebo reference="${frame_prefix}lidar_link">
-  <!-- 3D GPU lidar for visible rays in Gazebo and a bridged point cloud topic
-       that can be converted to /scan for SLAM. -->
+  <!-- Keep a real 3D lidar for the project objective. Nav2 will consume a
+       derived 2D scan generated from the point cloud in the launch file. -->
   <sensor type="gpu_lidar" name="front_lidar">
     <pose>0 0 0 0 0 0</pose>
     <topic>/${robot_name}/lidar</topic>
     <always_on>true</always_on>
-    <update_rate>10</update_rate>
+    <update_rate>15</update_rate>
     <visualize>true</visualize>
     <lidar>
       <scan>

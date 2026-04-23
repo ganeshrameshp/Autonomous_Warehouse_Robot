@@ -1,105 +1,62 @@
 slam_toolbox:
   ros__parameters:
-    # General Parameters
+    solver_plugin: solver_plugins::CeresSolver
+    ceres_linear_solver: SPARSE_NORMAL_CHOLESKY
+    ceres_preconditioner: SCHUR_JACOBI
+    ceres_trust_strategy: LEVENBERG_MARQUARDT
+    ceres_dogleg_type: TRADITIONAL_DOGLEG
+    ceres_loss_function: None
+
     use_sim_time: true
     odom_frame: odom
     map_frame: map
-    base_frame: base_link
+    base_frame: base_footprint
     scan_topic: /scan
-    
-    # Mode: mapping or localization
     mode: mapping
-    
-    # Mapping parameters
-    map_name: warehouse_map
-    map_start_at_dock: true
-    dock_frame: map
-    
-    # Solver Parameters
-    solver_plugin: solver_plugins::CeresSolver
-    solver_params:
-      # Ceres solver options
-      ceres_linear_solver_type: SPARSE_NORMAL_CHOLESKY
-      ceres_preconditioner_type: SCHUR_JACOBI
-      ceres_trust_strategy: LEVENBERG_MARQUARDT
-      ceres_dogleg_type: TRADITIONAL_DOGLEG
-      ceres_loss_function: None
-      
-    # Matcher parameters
-    matcher:
-      # Correlation grid search parameters
-      search_grid_size: 0.3
-      resolution: 0.05
-      smear_dev_th: 0.1
-      distance_variance_penalty: 0.5
-      angle_variance_penalty: 1.0
-      fine_search_angle_offset: 0.00349
-      coarse_search_angle_offset: 0.349
-      coarse_angle_search_step: 0.0349
-      fine_search_angle_step: 0.00349
-      angle_penalty_sharp_angle: 0.349
-      
-      # Correlation penalty type
-      correlation_penalty_type: 1
-      
-    # Score parameters 
-    minimum_score_gain: 200
-    minimum_travel_heading: 0.5
-    minimum_travel_distance: 0.5
-    scan_minimum_range: 0.1
-    scan_maximum_range: 10.0
-    scan_beamskip: 0
-    
-    # Loop closure parameters
+    debug_logging: false
+    throttle_scans: 1
+    transform_publish_period: 0.02
+    map_update_interval: 2.0
+    resolution: 0.05
+    min_laser_range: 0.12
+    max_laser_range: 10.0
+    minimum_time_interval: 0.2
+    transform_timeout: 0.2
+    tf_buffer_duration: 30.0
+    stack_size_to_use: 40000000
+    enable_interactive_mode: true
+
+    use_scan_matching: true
+    use_scan_barycenter: true
+    minimum_travel_distance: 0.1
+    minimum_travel_heading: 0.1
+    scan_buffer_size: 10
+    scan_buffer_maximum_scan_distance: 10.0
+    link_match_minimum_response_fine: 0.1
+    link_scan_maximum_distance: 1.5
     loop_search_maximum_distance: 3.0
     do_loop_closing: true
     loop_match_minimum_chain_size: 10
-    loop_match_maximum_variance_descriptor: 0.4
-    loop_match_minimum_response_fine: 0.1
-    loop_match_minimum_response_coarse: 0.3
-    loop_match_transformation_deviance_factor: 1.7
-    loop_match_distance_deviation: 0.3
-    loop_match_angle_deviation: 0.3
-    loop_closure_consecutive_poses_ignore_count: 0
-    loop_closure_debug_library: 0
-    loop_closure_transform_threshold: 0.1
-    
-    # Graphoptimizer parameters 
-    graph_optimization_chi_squared_epsilon: 1e-3
-    graph_optimization_age_threshold_collapsible: 5
-    graph_optimization_age_threshold_edge_húngaro: 5
-    graph_optimization_minimum_variance: 1e-8
-    graph_optimization_maximum_variance: 40.0
-    scan_buffer_maximum_scan_distance: 10.0
-    link_match_minimum_response_fine: 0.1
-    link_match_minimum_response_coarse: 0.3
+    loop_match_maximum_variance_coarse: 3.0
+    loop_match_minimum_response_coarse: 0.35
+    loop_match_minimum_response_fine: 0.45
 
-    # Kinematic parameters
-    use_scan_matching: true
-    use_scan_barycenter: true
-    minimum_time_interval: 0.0
-    minimum_update_target_distance: 0.05
-    minimum_update_target_angle: 0.05
-    scan_outlier_percentile: 95.0
-    scan_filter_size: 0.05
     correlation_search_space_dimension: 0.5
-    correlation_search_space_smear_deviation: 0.03
-    
-    # Occupancy grid parameters
-    grid_minimum_range: 0.0
-    grid_maximum_range: 100.0
-    grid_minimum_size: 10
-    grid_grid_patch_value: 35
-    
-    # Transform publisher parameters
-    transform_publish_period: 0.05
-    
-    # Sequencing parameters
-    max_num_corrective_poses: 5
-    max_corrective_pose_change: 0.1
-    multi_resolution_levels: 1
-    
-    # Debugging
-    debug_logging: false
-    debug_graph_writing: false
-    debug_graph_filename: mapper_graph.g2o
+    correlation_search_space_resolution: 0.01
+    correlation_search_space_smear_deviation: 0.1
+
+    loop_search_space_dimension: 8.0
+    loop_search_space_resolution: 0.05
+    loop_search_space_smear_deviation: 0.03
+
+    distance_variance_penalty: 0.5
+    angle_variance_penalty: 1.0
+
+    fine_search_angle_offset: 0.00349
+    coarse_search_angle_offset: 0.349
+    coarse_angle_resolution: 0.0349
+    minimum_angle_penalty: 0.9
+    minimum_distance_penalty: 0.5
+    use_response_expansion: true
+    min_pass_through: 2
+    occupancy_threshold: 0.1

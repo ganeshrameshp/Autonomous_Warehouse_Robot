@@ -19,6 +19,13 @@ Visualization Manager:
       Color: 160; 160; 164
       Alpha: 0.5
       Reference Frame: <Fixed Frame>
+    - Class: rviz_default_plugins/Map
+      Enabled: true
+      Name: Map
+      Topic:
+        Value: /map
+      Alpha: 0.7
+      Draw Behind: true
     - Class: rviz_default_plugins/RobotModel
       Enabled: true
       Name: RobotModel
@@ -33,7 +40,7 @@ Visualization Manager:
       Show Arrows: true
       Show Axes: true
       Show Names: true
-      Marker Scale: 0.5
+      Marker Scale: 0.4
     - Class: rviz_default_plugins/LaserScan
       Enabled: true
       Name: LaserScan
@@ -42,12 +49,12 @@ Visualization Manager:
       Reliability Policy: Best Effort
       Color Transformer: FlatColor
       Color: 0; 220; 255
-      Style: Flat Squares
-      Size (Pixels): 3
+      Style: Points
+      Size (Pixels): 6
       Use Fixed Frame: true
     - Class: rviz_default_plugins/PointCloud2
-      Enabled: true
-      Name: PointCloud2
+      Enabled: false
+      Name: LidarPoints
       Topic:
         Value: /donar_robot/lidar/points
       Reliability Policy: Best Effort
@@ -63,12 +70,44 @@ Visualization Manager:
         Value: /donar_robot/odometry
       Color: 255; 25; 0
       Keep: 100
-    - Class: rviz_default_plugins/Map
+    - Class: rviz_default_plugins/Path
       Enabled: true
-      Name: Map
+      Name: GlobalPath
       Topic:
-        Value: /map
-      Alpha: 0.7
+        Value: /plan
+      Color: 255; 0; 0
+      Line Style: Lines
+      Line Width: 0.08
+      Pose Style: None
+    - Class: rviz_default_plugins/Path
+      Enabled: true
+      Name: LocalPath
+      Topic:
+        Value: /local_plan
+      Color: 0; 255; 0
+      Line Style: Lines
+      Line Width: 0.06
+      Pose Style: None
+    - Class: rviz_default_plugins/Polygon
+      Enabled: true
+      Name: LocalFootprint
+      Topic:
+        Value: /local_costmap/published_footprint
+      Color: 255; 255; 0
+      Alpha: 0.8
+    - Class: rviz_default_plugins/Map
+      Enabled: false
+      Name: LocalCostmap
+      Topic:
+        Value: /local_costmap/costmap
+      Alpha: 0.35
+      Draw Behind: false
+    - Class: rviz_default_plugins/Map
+      Enabled: false
+      Name: GlobalCostmap
+      Topic:
+        Value: /global_costmap/costmap
+      Alpha: 0.2
       Draw Behind: true
   Enabled: true
   Global Options:
@@ -101,7 +140,7 @@ Visualization Manager:
       Focal Point:
         X: 0
         Y: 0
-        Z: 0.6
+        Z: 0.5
       Pitch: 0.8
       Yaw: 0.8
 Window Geometry:
