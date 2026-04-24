@@ -13,12 +13,13 @@ class GoalPoseCapture(Node):
     def __init__(self) -> None:
         super().__init__("capture_goal_poses")
 
-        self.declare_parameter("input_topic", "/goal_pose")
+        if not self.has_parameter("use_sim_time"):
+            self.declare_parameter("use_sim_time", True)
+        self.declare_parameter("input_topic", "/raw_goal_pose")
         self.declare_parameter(
             "output_file",
             "/home/ganesh/robot_ws/src/donar_robot_description/config/final_demo_goals.json",
         )
-        self.declare_parameter("use_sim_time", True)
 
         input_topic = str(self.get_parameter("input_topic").value)
         self.output_file = Path(str(self.get_parameter("output_file").value))

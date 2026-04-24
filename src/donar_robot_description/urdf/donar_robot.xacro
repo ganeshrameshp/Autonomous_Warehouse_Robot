@@ -79,7 +79,7 @@
 <!-- RIGHT WHEEL -->
 <link name="${frame_prefix}right_wheel_1">
   <inertial>
-    <origin xyz="0.0 -0.0375 0.0" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
     <mass value="6.75"/>
     <inertia ixx="0.12360346875" iyy="0.2371831875" izz="0.12360346875" ixy="0.0" iyz="0.0" ixz="0.0"/>
   </inertial>
@@ -91,7 +91,10 @@
     <material name="black"/>
   </visual>
   <collision>
-    <origin xyz="0 -0.0375 0" rpy="1.57079632679 0 0"/>
+    <!-- Keep the wheel collision centered on the axle. Offsetting it from the
+         joint axis makes Gazebo simulate a skewed contact patch, which shows
+         up as sideways sliding and unwanted turning. -->
+    <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
     <geometry>
       <cylinder radius="0.21" length="0.075"/>
     </geometry>
@@ -99,8 +102,8 @@
 </link>
 
 <gazebo reference="${frame_prefix}right_wheel_1">
-  <mu1>1.0</mu1>
-  <mu2>1.0</mu2>
+  <mu1>1.8</mu1>
+  <mu2>1.8</mu2>
   <kp>1000000.0</kp>
   <kd>100.0</kd>
 </gazebo>
@@ -115,7 +118,7 @@
 <!-- LEFT WHEEL -->
 <link name="${frame_prefix}left_wheel_1">
   <inertial>
-    <origin xyz="0.0 0.0375 0.0" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
     <mass value="6.75"/>
     <inertia ixx="0.12360346875" iyy="0.2371831875" izz="0.12360346875" ixy="0.0" iyz="0.0" ixz="0.0"/>
   </inertial>
@@ -127,7 +130,7 @@
     <material name="black"/>
   </visual>
   <collision>
-    <origin xyz="0 0.0375 0" rpy="1.57079632679 0 0"/>
+    <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
     <geometry>
       <cylinder radius="0.21" length="0.075"/>
     </geometry>
@@ -135,8 +138,8 @@
 </link>
 
 <gazebo reference="${frame_prefix}left_wheel_1">
-  <mu1>1.0</mu1>
-  <mu2>1.0</mu2>
+  <mu1>1.8</mu1>
+  <mu2>1.8</mu2>
   <kp>1000000.0</kp>
   <kd>100.0</kd>
 </gazebo>
@@ -165,7 +168,7 @@
   <collision>
     <origin xyz="0 0 -0.075" rpy="0 0 0"/>
     <geometry>
-      <sphere radius="0.06"/>
+      <sphere radius="0.045"/>
     </geometry>
   </collision>
 </link>
@@ -178,10 +181,10 @@
 </joint>
 <!-- Add Gazebo friction properties -->
 <gazebo reference="${frame_prefix}left_caster_wheel_1">
-  <!-- Keep the fixed caster spheres low-friction so turns stay possible,
-       but not completely frictionless, which causes sideways skating. -->
-  <mu1>0.02</mu1>
-  <mu2>0.02</mu2>
+  <!-- Keep the fixed caster spheres fairly low-friction so turns stay
+       possible, but not so low that the robot skates sideways under load. -->
+  <mu1>0.12</mu1>
+  <mu2>0.12</mu2>
   <kp>1000000.0</kp>
   <kd>100.0</kd>
 </gazebo>
@@ -203,7 +206,7 @@
   <collision>
     <origin xyz="0 0 -0.075" rpy="0 0 0"/>
     <geometry>
-      <sphere radius="0.06"/>
+      <sphere radius="0.045"/>
     </geometry>
   </collision>
 </link>
@@ -219,8 +222,8 @@
 
 <gazebo reference="${frame_prefix}right_caster_wheel_1">
   <!-- Match the left caster contact model to reduce lateral drift. -->
-  <mu1>0.02</mu1>
-  <mu2>0.02</mu2>
+  <mu1>0.12</mu1>
+  <mu2>0.12</mu2>
   <kp>1000000.0</kp>
   <kd>100.0</kd>
 </gazebo>
@@ -273,14 +276,14 @@
 
     <wheel_separation>0.78</wheel_separation>
     <wheel_radius>0.21</wheel_radius>
-    <max_linear_acceleration>3.0</max_linear_acceleration>
-    <min_linear_acceleration>-3.0</min_linear_acceleration>
-    <max_angular_acceleration>12.0</max_angular_acceleration>
-    <min_angular_acceleration>-12.0</min_angular_acceleration>
-    <max_linear_velocity>2.0</max_linear_velocity>
-    <min_linear_velocity>-2.0</min_linear_velocity>
-    <max_angular_velocity>6.0</max_angular_velocity>
-    <min_angular_velocity>-6.0</min_angular_velocity>
+    <max_linear_acceleration>0.9</max_linear_acceleration>
+    <min_linear_acceleration>-0.9</min_linear_acceleration>
+    <max_angular_acceleration>0.9</max_angular_acceleration>
+    <min_angular_acceleration>-0.9</min_angular_acceleration>
+    <max_linear_velocity>0.5</max_linear_velocity>
+    <min_linear_velocity>-0.25</min_linear_velocity>
+    <max_angular_velocity>0.55</max_angular_velocity>
+    <min_angular_velocity>-0.55</min_angular_velocity>
 
     <topic>/${robot_name}/cmd_vel</topic>
     <odom_topic>/${robot_name}/odometry</odom_topic>

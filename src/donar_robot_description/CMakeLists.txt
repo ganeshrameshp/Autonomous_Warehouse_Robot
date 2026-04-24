@@ -25,6 +25,7 @@ install(PROGRAMS
   scripts/capture_goal_poses.py
   scripts/cmd_vel_relay.py
   scripts/dynamic_obstacle_controller.py
+  scripts/goal_pose_relay.py
   scripts/initial_pose_publisher.py
   scripts/mission_planner.py
   scripts/nav2_activator.py

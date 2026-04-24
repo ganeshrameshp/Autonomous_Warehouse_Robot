@@ -47,10 +47,15 @@ def generate_launch_description():
         output="screen",
         parameters=[
             {
+                "use_sim_time": True,
                 "goals_file": LaunchConfiguration("goals_file"),
                 "start_delay_sec": LaunchConfiguration("mission_start_delay"),
                 "max_retries": LaunchConfiguration("max_retries"),
                 "stop_on_failure": False,
+                "wait_for_initial_pose": True,
+                "initial_pose_topic": "/initialpose",
+                "amcl_pose_topic": "/amcl_pose",
+                "goal_markers_topic": "/mission_goals",
                 "status_topic": "/mission_status",
             }
         ],
@@ -64,6 +69,7 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration("enable_dynamic_obstacle")),
         parameters=[
             {
+                "use_sim_time": True,
                 "world_name": "warehouse_world",
                 "start_delay_sec": LaunchConfiguration("obstacle_start_delay"),
                 "start_x": LaunchConfiguration("obstacle_start_x"),

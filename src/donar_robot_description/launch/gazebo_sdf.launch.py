@@ -173,14 +173,18 @@ def generate_launch_description():
                     "queue_size": 10,
                     # Keep the conversion in the incoming cloud frame because
                     # Gazebo publishes a sensor frame that is not part of the
-                    # ROS TF tree. The relay normalizes the output frame for
-                    # downstream Nav2 consumers.
-                    "min_height": -0.05,
-                    "max_height": 0.50,
+                    # ROS TF tree. Trim the slice so we keep obstacle surfaces
+                    # around the lidar plane without projecting the robot's own
+                    # roof and chassis into the synthetic 2D scan.
+                    "min_height": -0.02,
+                    "max_height": 0.35,
                     "angle_min": -3.14159,
                     "angle_max": 3.14159,
                     "angle_increment": 0.00872665,
                     "scan_time": 0.1,
+                    # Ignore near-field self-hits around the lidar housing and
+                    # base. Those were poisoning the Nav2 obstacle layers and
+                    # making the planner think the robot was boxed in.
                     "range_min": 0.35,
                     "range_max": 10.0,
                     "use_inf": True,

@@ -33,6 +33,7 @@ class MissionPlanner(Node):
         self.declare_parameter("initial_pose_topic", "/initialpose")
         self.declare_parameter("amcl_pose_topic", "/amcl_pose")
         self.declare_parameter("goal_markers_topic", "/mission_goals")
+        self.declare_parameter("align_yaw_to_path", True)
 
         self.use_sim_time = bool(self.get_parameter("use_sim_time").value)
         self.goals_file = Path(self.get_parameter("goals_file").value)
@@ -47,6 +48,9 @@ class MissionPlanner(Node):
         initial_pose_topic = str(self.get_parameter("initial_pose_topic").value)
         amcl_pose_topic = str(self.get_parameter("amcl_pose_topic").value)
         goal_markers_topic = str(self.get_parameter("goal_markers_topic").value)
+        self.align_yaw_to_path = bool(
+            self.get_parameter("align_yaw_to_path").value
+        )
 
         marker_qos = QoSProfile(depth=1)
         marker_qos.reliability = ReliabilityPolicy.RELIABLE
@@ -127,14 +131,25 @@ class MissionPlanner(Node):
             raise ValueError(f"No goals found in {self.goals_file}")
         return goals
 
-    def _make_pose(self, goal: dict) -> PoseStamped:
+    def _goal_yaw(self, goal: dict, index: int) -> float:
+        if not self.align_yaw_to_path or index >= len(self._goals) - 1:
+            return float(goal.get("yaw", 0.0))
+
+        next_goal = self._goals[index + 1]
+        dx = float(next_goal["x"]) - float(goal["x"])
+        dy = float(next_goal["y"]) - float(goal["y"])
+        if abs(dx) < 1.0e-6 and abs(dy) < 1.0e-6:
+            return float(goal.get("yaw", 0.0))
+        return math.atan2(dy, dx)
+
+    def _make_pose(self, goal: dict, index: int) -> PoseStamped:
         pose = PoseStamped()
         pose.header.frame_id = self.frame_id
         pose.header.stamp = self.get_clock().now().to_msg()
         pose.pose.position.x = float(goal["x"])
         pose.pose.position.y = float(goal["y"])
         pose.pose.position.z = 0.0
-        yaw = float(goal.get("yaw", 0.0))
+        yaw = self._goal_yaw(goal, index)
         pose.pose.orientation.z = math.sin(yaw / 2.0)
         pose.pose.orientation.w = math.cos(yaw / 2.0)
         return pose
@@ -318,9 +333,12 @@ class MissionPlanner(Node):
                             "goal_index": index,
                             "goal_name": goal_name,
                             "attempt": attempt,
+                            "target_yaw": round(self._goal_yaw(goal, index), 3),
                         }
                     )
-                    success, result_text = self._send_goal_and_wait(self._make_pose(goal))
+                    success, result_text = self._send_goal_and_wait(
+                        self._make_pose(goal, index)
+                    )
                     if success:
                         success = True
                         self._publish_status(

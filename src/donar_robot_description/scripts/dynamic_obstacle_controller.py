@@ -13,6 +13,7 @@ class DynamicObstacleController(Node):
     def __init__(self) -> None:
         super().__init__("dynamic_obstacle_controller")
 
+        self.declare_parameter("use_sim_time", True)
         self.declare_parameter("world_name", "warehouse_world")
         self.declare_parameter("obstacle_name", "final_demo_obstacle")
         self.declare_parameter("start_delay_sec", 20.0)
@@ -49,6 +50,7 @@ class DynamicObstacleController(Node):
         )
 
         self.spawned = False
+        self.spawn_request_in_flight = False
         self.start_time = self.get_clock().now()
         self.timer = self.create_timer(self.update_period_sec, self._tick)
 
@@ -97,23 +99,25 @@ class DynamicObstacleController(Node):
         return (self.get_clock().now() - self.start_time).nanoseconds / 1e9
 
     def _spawn(self) -> None:
-        if self.spawned:
+        if self.spawned or self.spawn_request_in_flight:
             return
         if not self.spawn_client.wait_for_service(timeout_sec=0.1):
             return
 
         req = SpawnEntity.Request()
         req.entity_factory.name = self.obstacle_name
-        req.entity_factory.allow_renaming = True
+        req.entity_factory.allow_renaming = False
         req.entity_factory.sdf = self._sdf()
         req.entity_factory.pose.position.x = self.start_x
         req.entity_factory.pose.position.y = self.start_y
         req.entity_factory.pose.position.z = self.z
         req.entity_factory.pose.orientation.w = 1.0
+        self.spawn_request_in_flight = True
         future = self.spawn_client.call_async(req)
         future.add_done_callback(self._handle_spawn_response)
 
     def _handle_spawn_response(self, future) -> None:
+        self.spawn_request_in_flight = False
         try:
             response = future.result()
         except Exception as exc:
@@ -136,6 +140,9 @@ class DynamicObstacleController(Node):
         self.set_pose_client.call_async(req)
 
     def _tick(self) -> None:
+        if self.get_clock().now().nanoseconds == 0:
+            return
+
         elapsed = self._elapsed()
         if not self.spawned:
             self._spawn()

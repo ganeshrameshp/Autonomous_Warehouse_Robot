@@ -132,7 +132,7 @@ Visualization Manager:
         Value: /initialpose
     - Class: rviz_default_plugins/SetGoal
       Topic:
-        Value: /goal_pose
+        Value: /raw_goal_pose
     - Class: rviz_default_plugins/PublishPoint
       Topic:
         Value: /clicked_point

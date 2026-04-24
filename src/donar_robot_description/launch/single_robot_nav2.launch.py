@@ -35,6 +35,21 @@ def generate_launch_description():
                     }
                 ],
             ),
+            Node(
+                package="donar_robot_description",
+                executable="goal_pose_relay.py",
+                name="single_robot_goal_pose_relay",
+                output="screen",
+                parameters=[
+                    {
+                        "use_sim_time": True,
+                        "input_topic": "/raw_goal_pose",
+                        "output_topic": "/goal_pose",
+                        "amcl_pose_topic": "/amcl_pose",
+                        "use_current_orientation": True,
+                    }
+                ],
+            ),
             DeclareLaunchArgument(
                 "map",
                 default_value="/home/ganesh/robot_ws/warehouse_map.yaml",
