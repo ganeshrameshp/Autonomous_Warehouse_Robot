@@ -171,6 +171,10 @@ def generate_launch_description():
                     "target_frame": "",
                     "transform_tolerance": 0.1,
                     "queue_size": 10,
+                    # Keep the conversion in the incoming cloud frame because
+                    # Gazebo publishes a sensor frame that is not part of the
+                    # ROS TF tree. The relay normalizes the output frame for
+                    # downstream Nav2 consumers.
                     "min_height": -0.05,
                     "max_height": 0.50,
                     "angle_min": -3.14159,
@@ -259,7 +263,7 @@ def generate_launch_description():
             ),
             DeclareLaunchArgument(
                 "spawn_yaw",
-                default_value="1.57",
+                default_value="0.0",
                 description="Robot spawn yaw in radians.",
             ),
             DeclareLaunchArgument(

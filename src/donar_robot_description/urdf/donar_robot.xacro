@@ -178,8 +178,10 @@
 </joint>
 <!-- Add Gazebo friction properties -->
 <gazebo reference="${frame_prefix}left_caster_wheel_1">
-  <mu1>0.0</mu1>
-  <mu2>0.0</mu2>
+  <!-- Keep the fixed caster spheres low-friction so turns stay possible,
+       but not completely frictionless, which causes sideways skating. -->
+  <mu1>0.02</mu1>
+  <mu2>0.02</mu2>
   <kp>1000000.0</kp>
   <kd>100.0</kd>
 </gazebo>
@@ -216,8 +218,9 @@
 </joint>
 
 <gazebo reference="${frame_prefix}right_caster_wheel_1">
-  <mu1>0.0</mu1>
-  <mu2>0.0</mu2>
+  <!-- Match the left caster contact model to reduce lateral drift. -->
+  <mu1>0.02</mu1>
+  <mu2>0.02</mu2>
   <kp>1000000.0</kp>
   <kd>100.0</kd>
 </gazebo>

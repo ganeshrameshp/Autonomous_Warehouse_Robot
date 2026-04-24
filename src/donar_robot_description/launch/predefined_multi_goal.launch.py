@@ -1,17 +1,14 @@
 import os
-
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.conditions import IfCondition
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
-
-
+ 
 def generate_launch_description():
     pkg_share = get_package_share_directory("donar_robot_description")
-
+    
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(pkg_share, "launch", "gazebo_sdf.launch.py")
@@ -24,7 +21,7 @@ def generate_launch_description():
             "robot_name": "donar_robot",
         }.items(),
     )
-
+    
     nav2_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(pkg_share, "launch", "single_robot_nav2.launch.py")
@@ -37,43 +34,41 @@ def generate_launch_description():
             "initial_pose_x": LaunchConfiguration("initial_pose_x"),
             "initial_pose_y": LaunchConfiguration("initial_pose_y"),
             "initial_pose_yaw": LaunchConfiguration("initial_pose_yaw"),
+            "publish_initial_pose": "true",
         }.items(),
     )
-
+    
     mission_planner = Node(
         package="donar_robot_description",
         executable="mission_planner.py",
-        name="final_demo_mission_planner",
+        name="predefined_multi_goal_mission_planner",
         output="screen",
         parameters=[
             {
+                "use_sim_time": True,
                 "goals_file": LaunchConfiguration("goals_file"),
                 "start_delay_sec": LaunchConfiguration("mission_start_delay"),
                 "max_retries": LaunchConfiguration("max_retries"),
                 "stop_on_failure": False,
+                "wait_for_initial_pose": True,
+                "initial_pose_topic": "/initialpose",
+                "amcl_pose_topic": "/amcl_pose",
+                "goal_markers_topic": "/mission_goals",
                 "status_topic": "/mission_status",
             }
         ],
     )
-
-    dynamic_obstacle = Node(
-        package="donar_robot_description",
-        executable="dynamic_obstacle_controller.py",
-        name="final_demo_dynamic_obstacle",
-        output="screen",
-        condition=IfCondition(LaunchConfiguration("enable_dynamic_obstacle")),
-        parameters=[
-            {
-                "world_name": "warehouse_world",
-                "start_delay_sec": LaunchConfiguration("obstacle_start_delay"),
-                "start_x": LaunchConfiguration("obstacle_start_x"),
-                "start_y": LaunchConfiguration("obstacle_start_y"),
-                "end_x": LaunchConfiguration("obstacle_end_x"),
-                "end_y": LaunchConfiguration("obstacle_end_y"),
-            }
-        ],
+    
+    delayed_nav2_launch = TimerAction(
+        period=15.0,
+        actions=[nav2_launch],
     )
-
+    
+    delayed_mission_planner = TimerAction(
+        period=26.0,
+        actions=[mission_planner],
+    )
+    
     return LaunchDescription(
         [
             DeclareLaunchArgument(
@@ -94,17 +89,11 @@ def generate_launch_description():
             DeclareLaunchArgument("initial_pose_x", default_value="-1.0"),
             DeclareLaunchArgument("initial_pose_y", default_value="-3.0"),
             DeclareLaunchArgument("initial_pose_yaw", default_value="0.0"),
-            DeclareLaunchArgument("mission_start_delay", default_value="18.0"),
+            DeclareLaunchArgument("mission_start_delay", default_value="10.0"),
             DeclareLaunchArgument("max_retries", default_value="2"),
-            DeclareLaunchArgument("enable_dynamic_obstacle", default_value="true"),
-            DeclareLaunchArgument("obstacle_start_delay", default_value="30.0"),
-            DeclareLaunchArgument("obstacle_start_x", default_value="-1.5"),
-            DeclareLaunchArgument("obstacle_start_y", default_value="-0.5"),
-            DeclareLaunchArgument("obstacle_end_x", default_value="2.5"),
-            DeclareLaunchArgument("obstacle_end_y", default_value="-0.5"),
             gazebo_launch,
-            nav2_launch,
-            mission_planner,
-            dynamic_obstacle,
+            delayed_nav2_launch,
+            delayed_mission_planner,
         ]
     )
+ 

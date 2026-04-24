@@ -22,18 +22,23 @@ class ScanRelay(Node):
             self.get_parameter("output_frame").get_parameter_value().string_value
         )
 
-        sensor_qos = QoSProfile(
+        input_qos = QoSProfile(
             history=QoSHistoryPolicy.KEEP_LAST,
             depth=1,
             reliability=QoSReliabilityPolicy.BEST_EFFORT,
         )
+        output_qos = QoSProfile(
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=10,
+            reliability=QoSReliabilityPolicy.RELIABLE,
+        )
 
-        self.publisher = self.create_publisher(LaserScan, output_topic, sensor_qos)
+        self.publisher = self.create_publisher(LaserScan, output_topic, output_qos)
         self.subscription = self.create_subscription(
             LaserScan,
             input_topic,
             self._relay_callback,
-            sensor_qos,
+            input_qos,
         )
 
         self.get_logger().info(
@@ -42,13 +47,10 @@ class ScanRelay(Node):
         )
 
     def _relay_callback(self, msg: LaserScan) -> None:
-        # Normalize the frame_id so downstream SLAM/Nav2 nodes can resolve it
-        # against the TF tree published from the robot description. Refresh the
-        # timestamp to the current simulation time so AMCL doesn't receive scans
-        # that are already older than the available TF cache by the time they
-        # work through the bridge and processing queues.
+        # Keep the original sensor timestamp so costmap / TF consumers see a
+        # consistent time base. Only normalize the frame id to the sensor frame
+        # exposed by the robot model.
         msg.header.frame_id = self.output_frame
-        msg.header.stamp = self.get_clock().now().to_msg()
         self.publisher.publish(msg)
 
 

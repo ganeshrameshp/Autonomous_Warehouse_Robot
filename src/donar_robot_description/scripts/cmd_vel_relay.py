@@ -28,7 +28,12 @@ class CmdVelRelay(Node):
         )
 
     def _relay_callback(self, msg: Twist) -> None:
-        self.publisher.publish(msg)
+        # The simulator robot is diff-drive, so only forward velocity and yaw
+        # rate should be forwarded to Gazebo.
+        relay_msg = Twist()
+        relay_msg.linear.x = msg.linear.x
+        relay_msg.angular.z = msg.angular.z
+        self.publisher.publish(relay_msg)
 
 
 def main():

@@ -233,6 +233,22 @@
             </box>
           </geometry>
         </collision>
+        <collision name="top_shelf_collision">
+          <pose>0 0 1.2 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.16 0.5 0.05</size>
+            </box>
+          </geometry>
+        </collision>
+        <collision name="mid_shelf_collision">
+          <pose>0 0 0.75 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.16 0.5 0.05</size>
+            </box>
+          </geometry>
+        </collision>
         <visual name="rack_body">
           <pose>0 0 0.75 0 0 0</pose>
           <geometry>
@@ -281,6 +297,22 @@
           <geometry>
             <box>
               <size>1.1 0.45 1.5</size>
+            </box>
+          </geometry>
+        </collision>
+        <collision name="top_shelf_collision">
+          <pose>0 0 1.2 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.16 0.5 0.05</size>
+            </box>
+          </geometry>
+        </collision>
+        <collision name="mid_shelf_collision">
+          <pose>0 0 0.75 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.16 0.5 0.05</size>
             </box>
           </geometry>
         </collision>

@@ -50,11 +50,13 @@ class OdometryTfBroadcaster(Node):
             )
             self._logged_first_message = True
 
+        if msg.header.stamp.sec == 0 and msg.header.stamp.nanosec == 0:
+            return
+
         transform = TransformStamped()
-        # Stamp with the current ROS clock time. With use_sim_time enabled this
-        # is simulation time, which keeps the TF cache current even if bridged
-        # odometry messages arrive slightly late or out of order.
-        transform.header.stamp = self.get_clock().now().to_msg()
+        # Preserve the simulator-provided timestamp so TF aligns with LaserScan
+        # timestamps consumed by AMCL and the Nav2 costmaps.
+        transform.header.stamp = msg.header.stamp
         transform.header.frame_id = self.odom_frame
         transform.child_frame_id = self.base_frame
         transform.transform.translation.x = msg.pose.pose.position.x

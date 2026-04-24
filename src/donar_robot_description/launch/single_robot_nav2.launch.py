@@ -2,7 +2,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
+from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription, SetEnvironmentVariable, TimerAction
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
@@ -15,6 +15,7 @@ def generate_launch_description():
     fastdds_profile = os.path.join(pkg_share, "config", "fastdds_no_shm.xml")
 
     bringup_launch = os.path.join(nav2_bringup_share, "launch", "bringup_launch.py")
+    gazebo_launch = os.path.join(pkg_share, "launch", "gazebo_sdf.launch.py")
 
     return LaunchDescription(
         [
@@ -45,24 +46,54 @@ def generate_launch_description():
                 description="Use Gazebo simulation time.",
             ),
             DeclareLaunchArgument(
+                "launch_sim",
+                default_value="true",
+                description="Launch the single robot simulation stack alongside Nav2.",
+            ),
+            DeclareLaunchArgument(
+                "spawn_x",
+                default_value="-1.0",
+                description="Robot spawn X position in Gazebo.",
+            ),
+            DeclareLaunchArgument(
+                "spawn_y",
+                default_value="-3.0",
+                description="Robot spawn Y position in Gazebo.",
+            ),
+            DeclareLaunchArgument(
+                "spawn_z",
+                default_value="0.0",
+                description="Robot spawn Z position in Gazebo.",
+            ),
+            DeclareLaunchArgument(
+                "spawn_yaw",
+                default_value="0.0",
+                description="Robot spawn yaw in Gazebo.",
+            ),
+            DeclareLaunchArgument(
                 "autostart",
                 default_value="true",
                 description="Automatically transition Nav2 lifecycle nodes.",
             ),
             DeclareLaunchArgument(
+                "nav2_start_delay",
+                default_value="12.0",
+                description="Seconds to wait before starting Nav2 and initial pose publication.",
+            ),
+            DeclareLaunchArgument(
                 "initial_pose_x",
-                default_value="-11.4",
-                description="Initial pose X in the map frame.",
+                default_value="-1.0",
+                description="Initial pose X in the map frame. Defaults to the Gazebo spawn pose.",
             ),
             DeclareLaunchArgument(
                 "initial_pose_y",
-                default_value="-4.9",
-                description="Initial pose Y in the map frame.",
+                default_value="-3.0",
+                description="Initial pose Y in the map frame. Defaults to the Gazebo spawn pose.",
             ),
             DeclareLaunchArgument(
                 "initial_pose_yaw",
-                default_value="-1.57",
-                description="Initial pose yaw in radians.",
+                default_value="0.0",
+                description="Initial pose yaw in radians. Defaults to the Gazebo spawn yaw.",
             ),
             DeclareLaunchArgument(
                 "params_file",
@@ -76,49 +107,84 @@ def generate_launch_description():
                 default_value="true",
                 description="Launch RViz with the single robot navigation config.",
             ),
+            DeclareLaunchArgument(
+                "use_nav2_activator",
+                default_value="false",
+                description="Run the custom lifecycle activator in addition to Nav2 autostart.",
+            ),
+            DeclareLaunchArgument(
+                "publish_initial_pose",
+                default_value="true",
+                description="Publish the configured AMCL initial pose automatically.",
+            ),
             IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(bringup_launch),
+                PythonLaunchDescriptionSource(gazebo_launch),
+                condition=IfCondition(LaunchConfiguration("launch_sim")),
                 launch_arguments={
-                    "slam": "False",
-                    "map": LaunchConfiguration("map"),
-                    "use_sim_time": LaunchConfiguration("use_sim_time"),
-                    "params_file": LaunchConfiguration("params_file"),
-                    "autostart": LaunchConfiguration("autostart"),
-                    "use_composition": "False",
-                    "use_respawn": "False",
-                    "log_level": "info",
+                    "spawn_x": LaunchConfiguration("spawn_x"),
+                    "spawn_y": LaunchConfiguration("spawn_y"),
+                    "spawn_z": LaunchConfiguration("spawn_z"),
+                    "spawn_yaw": LaunchConfiguration("spawn_yaw"),
+                    "robot_name": "donar_robot",
+                    "frame_prefix": "",
+                    "launch_gazebo": "true",
+                    "bridge_global_topics": "true",
                 }.items(),
             ),
-            Node(
-                package="donar_robot_description",
-                executable="nav2_activator.py",
-                name="single_robot_nav2_activator",
-                output="screen",
-                parameters=[
-                    {
-                        "startup_delay_sec": 20.0,
-                        "service_timeout_sec": 12.0,
-                        "max_retries": 8,
-                        "wait_for_all_services_sec": 40.0,
-                    }
-                ],
-            ),
-            Node(
-                package="donar_robot_description",
-                executable="initial_pose_publisher.py",
-                name="single_robot_initial_pose_publisher",
-                output="screen",
-                parameters=[
-                    {
-                        "use_sim_time": True,
-                        "topic": "/initialpose",
-                        "frame_id": "map",
-                        "x": LaunchConfiguration("initial_pose_x"),
-                        "y": LaunchConfiguration("initial_pose_y"),
-                        "yaw": LaunchConfiguration("initial_pose_yaw"),
-                        "publish_count": 15,
-                        "startup_delay_sec": 8.0,
-                    }
+            TimerAction(
+                period=LaunchConfiguration("nav2_start_delay"),
+                actions=[
+                    GroupAction(
+                        actions=[
+                            IncludeLaunchDescription(
+                                PythonLaunchDescriptionSource(bringup_launch),
+                                launch_arguments={
+                                    "slam": "False",
+                                    "map": LaunchConfiguration("map"),
+                                    "use_sim_time": LaunchConfiguration("use_sim_time"),
+                                    "params_file": LaunchConfiguration("params_file"),
+                                    "autostart": LaunchConfiguration("autostart"),
+                                    "use_composition": "False",
+                                    "use_respawn": "False",
+                                    "log_level": "info",
+                                }.items(),
+                            ),
+                            Node(
+                                package="donar_robot_description",
+                                executable="nav2_activator.py",
+                                name="single_robot_nav2_activator",
+                                condition=IfCondition(LaunchConfiguration("use_nav2_activator")),
+                                output="screen",
+                                parameters=[
+                                    {
+                                        "startup_delay_sec": 20.0,
+                                        "service_timeout_sec": 12.0,
+                                        "max_retries": 8,
+                                        "wait_for_all_services_sec": 40.0,
+                                    }
+                                ],
+                            ),
+                            Node(
+                                package="donar_robot_description",
+                                executable="initial_pose_publisher.py",
+                                name="single_robot_initial_pose_publisher",
+                                condition=IfCondition(LaunchConfiguration("publish_initial_pose")),
+                                output="screen",
+                                parameters=[
+                                    {
+                                        "use_sim_time": True,
+                                        "topic": "/initialpose",
+                                        "frame_id": "map",
+                                        "x": LaunchConfiguration("initial_pose_x"),
+                                        "y": LaunchConfiguration("initial_pose_y"),
+                                        "yaw": LaunchConfiguration("initial_pose_yaw"),
+                                        "publish_count": 15,
+                                        "startup_delay_sec": 5.0,
+                                    }
+                                ],
+                            ),
+                        ]
+                    )
                 ],
             ),
             Node(
@@ -127,6 +193,7 @@ def generate_launch_description():
                 arguments=["-d", os.path.join(pkg_share, "launch", "single_robot_nav2.rviz")],
                 condition=IfCondition(LaunchConfiguration("use_rviz")),
                 output="screen",
+                parameters=[{"use_sim_time": LaunchConfiguration("use_sim_time")}],
             ),
         ]
     )

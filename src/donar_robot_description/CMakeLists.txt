@@ -22,6 +22,7 @@ install(DIRECTORY
 )
 
 install(PROGRAMS
+  scripts/capture_goal_poses.py
   scripts/cmd_vel_relay.py
   scripts/dynamic_obstacle_controller.py
   scripts/initial_pose_publisher.py
