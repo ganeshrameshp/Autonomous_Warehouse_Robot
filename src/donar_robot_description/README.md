@@ -76,6 +76,15 @@ ros2 launch donar_robot_description predefined_multi_goal.launch.py \
   use_rviz:=true
 ```
 
+Notes:
+
+- By default this launch now seeds AMCL from the configured spawn pose so the `map -> odom -> base_footprint` transform chain comes up automatically.
+- If you want to localize manually in RViz instead, add `publish_initial_pose:=false` and then use `2D Pose Estimate`.
+- The predefined mission now follows the goal order exactly as stored in the JSON file by default.
+- The default route skips the first stored goal, so the robot starts from goal 2. Override with `skip_goal_count:=0` if you want the full route back.
+- Waypoint yaw is aligned to the next path segment by default, and transit waypoints always use path-aligned yaw so they do not trigger extra turning from placeholder `yaw: 0.0` values.
+- If you want the old reordering behavior for experiments, add `start_from_nearest_goal:=true optimize_route_order:=true`.
+
 For the full project-style demo with the mission planner and optional obstacle:
 
 ```bash

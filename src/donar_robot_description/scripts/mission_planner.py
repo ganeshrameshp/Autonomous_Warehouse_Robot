@@ -32,8 +32,13 @@ class MissionPlanner(Node):
         self.declare_parameter("wait_for_initial_pose", True)
         self.declare_parameter("initial_pose_topic", "/initialpose")
         self.declare_parameter("amcl_pose_topic", "/amcl_pose")
+        self.declare_parameter("accept_amcl_pose_as_initial_pose", True)
+        self.declare_parameter("wait_for_localization", True)
         self.declare_parameter("goal_markers_topic", "/mission_goals")
         self.declare_parameter("align_yaw_to_path", True)
+        self.declare_parameter("start_from_nearest_goal", False)
+        self.declare_parameter("skip_goal_count", 0)
+        self.declare_parameter("optimize_route_order", False)
 
         self.use_sim_time = bool(self.get_parameter("use_sim_time").value)
         self.goals_file = Path(self.get_parameter("goals_file").value)
@@ -47,9 +52,22 @@ class MissionPlanner(Node):
         )
         initial_pose_topic = str(self.get_parameter("initial_pose_topic").value)
         amcl_pose_topic = str(self.get_parameter("amcl_pose_topic").value)
+        self.accept_amcl_pose_as_initial_pose = bool(
+            self.get_parameter("accept_amcl_pose_as_initial_pose").value
+        )
+        self.wait_for_localization = bool(
+            self.get_parameter("wait_for_localization").value
+        )
         goal_markers_topic = str(self.get_parameter("goal_markers_topic").value)
         self.align_yaw_to_path = bool(
             self.get_parameter("align_yaw_to_path").value
+        )
+        self.start_from_nearest_goal = bool(
+            self.get_parameter("start_from_nearest_goal").value
+        )
+        self.skip_goal_count = max(0, int(self.get_parameter("skip_goal_count").value))
+        self.optimize_route_order = bool(
+            self.get_parameter("optimize_route_order").value
         )
 
         marker_qos = QoSProfile(depth=1)
@@ -64,8 +82,10 @@ class MissionPlanner(Node):
         )
         self._nav_client = ActionClient(self, NavigateToPose, "navigate_to_pose")
         self._initial_pose_received = not self.wait_for_initial_pose
+        self._localized_pose_received = False
         self._goals = []
         self._last_status = None
+        self._current_pose_xy = None
         self._clock_wait_reported = set()
         self._started = False
         self._worker = None
@@ -107,13 +127,24 @@ class MissionPlanner(Node):
         msg.data = json.dumps(self._last_status)
         self.status_pub.publish(msg)
 
-    def _handle_initial_pose(self, _msg: PoseWithCovarianceStamped) -> None:
+    def _handle_initial_pose(self, msg: PoseWithCovarianceStamped) -> None:
+        self._current_pose_xy = (
+            float(msg.pose.pose.position.x),
+            float(msg.pose.pose.position.y),
+        )
         if self._initial_pose_received:
             return
         self._initial_pose_received = True
         self._publish_status({"state": "INITIAL_POSE_RECEIVED"})
 
-    def _handle_amcl_pose(self, _msg: PoseWithCovarianceStamped) -> None:
+    def _handle_amcl_pose(self, msg: PoseWithCovarianceStamped) -> None:
+        self._current_pose_xy = (
+            float(msg.pose.pose.position.x),
+            float(msg.pose.pose.position.y),
+        )
+        self._localized_pose_received = True
+        if self.wait_for_initial_pose and not self.accept_amcl_pose_as_initial_pose:
+            return
         if self._initial_pose_received:
             return
         self._initial_pose_received = True
@@ -129,10 +160,110 @@ class MissionPlanner(Node):
         goals = data.get("goals", [])
         if not goals:
             raise ValueError(f"No goals found in {self.goals_file}")
+        if self.skip_goal_count:
+            if self.skip_goal_count >= len(goals):
+                raise ValueError(
+                    "skip_goal_count removes every goal from the mission route"
+                )
+            goals = goals[self.skip_goal_count :]
+            self._publish_status(
+                {
+                    "state": "ROUTE_TRIMMED",
+                    "skipped_goal_count": self.skip_goal_count,
+                    "remaining_goal_count": len(goals),
+                }
+            )
         return goals
 
+    def _rotate_goals_to_nearest_start(self, goals: list[dict]) -> list[dict]:
+        if not self.start_from_nearest_goal or len(goals) <= 1:
+            return goals
+
+        if self._current_pose_xy is None:
+            self.get_logger().warn(
+                "start_from_nearest_goal is enabled, but no localized pose is "
+                "available yet. Using the route order from the goals file."
+            )
+            return goals
+
+        current_x, current_y = self._current_pose_xy
+        nearest_index = min(
+            range(len(goals)),
+            key=lambda index: (
+                (float(goals[index]["x"]) - current_x) ** 2
+                + (float(goals[index]["y"]) - current_y) ** 2
+            ),
+        )
+        if nearest_index == 0:
+            return goals
+
+        rotated = goals[nearest_index:] + goals[:nearest_index]
+        self._publish_status(
+            {
+                "state": "ROUTE_ROTATED",
+                "start_goal_index": nearest_index,
+                "start_goal_name": str(rotated[0].get("name", f"goal_{nearest_index + 1}")),
+            }
+        )
+        return rotated
+
+    def _optimize_route_order(self, goals: list[dict]) -> list[dict]:
+        if not self.optimize_route_order or len(goals) <= 2:
+            return goals
+
+        if any(bool(goal.get("transit", False)) for goal in goals):
+            self.get_logger().warn(
+                "optimize_route_order is enabled, but the route includes transit "
+                "waypoints. Preserving the file order."
+            )
+            return goals
+
+        if self._current_pose_xy is None:
+            self.get_logger().warn(
+                "optimize_route_order is enabled, but no localized pose is "
+                "available yet. Preserving the current route order."
+            )
+            return goals
+
+        remaining = list(goals)
+        ordered: list[dict] = []
+        current_x, current_y = self._current_pose_xy
+
+        while remaining:
+            nearest_index = min(
+                range(len(remaining)),
+                key=lambda index: (
+                    (float(remaining[index]["x"]) - current_x) ** 2
+                    + (float(remaining[index]["y"]) - current_y) ** 2
+                ),
+            )
+            chosen = remaining.pop(nearest_index)
+            ordered.append(chosen)
+            current_x = float(chosen["x"])
+            current_y = float(chosen["y"])
+
+        if ordered != goals:
+            self._publish_status(
+                {
+                    "state": "ROUTE_OPTIMIZED",
+                    "goal_count": len(ordered),
+                    "first_goal_name": str(
+                        ordered[0].get("name", "goal_1")
+                    ),
+                }
+            )
+
+        return ordered
+
     def _goal_yaw(self, goal: dict, index: int) -> float:
-        if not self.align_yaw_to_path or index >= len(self._goals) - 1:
+        # Transit waypoints are route-shaping helpers, so keep their yaw aligned
+        # with the next leg instead of honoring placeholder file yaw values.
+        force_path_alignment = bool(goal.get("transit", False))
+
+        if (
+            (not self.align_yaw_to_path and not force_path_alignment)
+            or index >= len(self._goals) - 1
+        ):
             return float(goal.get("yaw", 0.0))
 
         next_goal = self._goals[index + 1]
@@ -172,25 +303,37 @@ class MissionPlanner(Node):
         path_marker.color.b = 0.1
 
         for index, goal in enumerate(goals):
-            sphere = Marker()
-            sphere.header.frame_id = self.frame_id
-            sphere.header.stamp = stamp
-            sphere.ns = "mission_goals"
-            sphere.id = index
-            sphere.type = Marker.CYLINDER
-            sphere.action = Marker.ADD
-            sphere.pose.position.x = float(goal["x"])
-            sphere.pose.position.y = float(goal["y"])
-            sphere.pose.position.z = 0.35
-            sphere.pose.orientation.w = 1.0
-            sphere.scale.x = 0.7
-            sphere.scale.y = 0.7
-            sphere.scale.z = 0.7
-            sphere.color.a = 0.9
-            sphere.color.r = 0.0
-            sphere.color.g = 1.0
-            sphere.color.b = 0.0
-            markers.markers.append(sphere)
+            is_transit = bool(goal.get("transit", False))
+            goal_dot = Marker()
+            goal_dot.header.frame_id = self.frame_id
+            goal_dot.header.stamp = stamp
+            goal_dot.ns = "mission_goals"
+            goal_dot.id = index
+            # Render each goal as a flat floor dot so the route points are easy
+            # to spot in RViz without obscuring the map around them.
+            goal_dot.type = Marker.CYLINDER
+            goal_dot.action = Marker.ADD
+            goal_dot.pose.position.x = float(goal["x"])
+            goal_dot.pose.position.y = float(goal["y"])
+            goal_dot.pose.position.z = 0.03
+            goal_dot.pose.orientation.w = 1.0
+            goal_dot.scale.x = 0.24 if is_transit else 0.38
+            goal_dot.scale.y = 0.24 if is_transit else 0.38
+            goal_dot.scale.z = 0.06
+            goal_dot.color.a = 1.0
+            goal_dot.color.r = 0.2 if is_transit else 0.0
+            goal_dot.color.g = 0.7 if is_transit else 1.0
+            goal_dot.color.b = 1.0 if is_transit else 0.0
+            markers.markers.append(goal_dot)
+
+            point = Point()
+            point.x = float(goal["x"])
+            point.y = float(goal["y"])
+            point.z = 0.12
+            path_marker.points.append(point)
+
+            if is_transit:
+                continue
 
             label = Marker()
             label.header.frame_id = self.frame_id
@@ -210,12 +353,6 @@ class MissionPlanner(Node):
             label.color.b = 1.0
             label.text = str(goal.get("name", f"G{index + 1}"))
             markers.markers.append(label)
-
-            point = Point()
-            point.x = float(goal["x"])
-            point.y = float(goal["y"])
-            point.z = 0.12
-            path_marker.points.append(point)
 
         if len(path_marker.points) >= 2:
             markers.markers.append(path_marker)
@@ -305,14 +442,22 @@ class MissionPlanner(Node):
     def _run_mission(self) -> None:
         try:
             self._wait_for_clock(self, "mission_planner")
-            goals = self._load_goals()
-            self._goals = goals
-            self._publish_goal_markers(goals)
-            self._publish_status({"state": "STARTING", "goal_count": len(goals)})
             if self.wait_for_initial_pose:
                 self._publish_status({"state": "WAITING_FOR_INITIAL_POSE"})
                 while rclpy.ok() and not self._initial_pose_received:
                     time.sleep(0.2)
+
+            if self.wait_for_localization:
+                self._publish_status({"state": "WAITING_FOR_LOCALIZATION"})
+                while rclpy.ok() and not self._localized_pose_received:
+                    time.sleep(0.2)
+
+            goals = self._load_goals()
+            goals = self._rotate_goals_to_nearest_start(goals)
+            goals = self._optimize_route_order(goals)
+            self._goals = goals
+            self._publish_goal_markers(goals)
+            self._publish_status({"state": "STARTING", "goal_count": len(goals)})
 
             self._publish_status(
                 {"state": "START_DELAY", "seconds": self.start_delay_sec}

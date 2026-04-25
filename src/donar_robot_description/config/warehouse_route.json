@@ -19,6 +19,20 @@
       "yaw": 0.0
     },
     {
+      "name": "goal_3_to_4_transit_1",
+      "x": 14.850,
+      "y": -17.100,
+      "yaw": 0.0,
+      "transit": true
+    },
+    {
+      "name": "goal_3_to_4_transit_2",
+      "x": 15.050,
+      "y": -13.100,
+      "yaw": 0.0,
+      "transit": true
+    },
+    {
       "name": "goal_4",
       "x": 15.628,
       "y": -9.002,
@@ -31,11 +45,41 @@
       "yaw": 0.0
     },
     {
+      "name": "goal_5_to_6_transit_1",
+      "x": 10.200,
+      "y": -8.400,
+      "yaw": 0.0,
+      "transit": true
+    },
+    {
+      "name": "goal_5_to_6_transit_2",
+      "x": 10.700,
+      "y": -3.600,
+      "yaw": 0.0,
+      "transit": true
+    },
+    
+    {
       "name": "goal_6",
       "x": 11.748,
       "y": 1.484,
       "yaw": 0.0
     },
+    {
+      "name": "goal_6_to_7_transit_1",
+      "x": 8.000,
+      "y": 1.200,
+      "yaw": 0.0,
+      "transit": true
+    },
+    {
+      "name": "goal_6_to_7_transit_2",
+      "x": 6.500,
+      "y": -4.400,
+      "yaw": 0.0,
+      "transit": true
+    },
+  
     {
       "name": "goal_7",
       "x": -0.983,

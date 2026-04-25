@@ -159,7 +159,10 @@
     <inertia ixx="0.00280209375" iyy="0.00280209375" izz="0.0023085" ixy="0" iyz="0" ixz="0"/>
   </inertial>
   <visual>
-    <origin xyz="0 0 -0.015" rpy="0 0 0"/>
+    <!-- Keep a tiny visual-only floor clearance so the caster does not look
+         sunken into the warehouse pad while leaving the contact geometry
+         unchanged. -->
+    <origin xyz="0 0 -0.003" rpy="0 0 0"/>
     <geometry>
       <sphere radius="0.12"/>
     </geometry>
@@ -197,7 +200,7 @@
     <inertia ixx="0.00280209375" iyy="0.00280209375" izz="0.0023085" ixy="0" iyz="0" ixz="0"/>
   </inertial>
   <visual>
-    <origin xyz="0 0 -0.015" rpy="0 0 0"/>
+    <origin xyz="0 0 -0.003" rpy="0 0 0"/>
     <geometry>
       <sphere radius="0.12"/>
     </geometry>
