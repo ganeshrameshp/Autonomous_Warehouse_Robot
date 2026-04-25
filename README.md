@@ -109,11 +109,3 @@ ros2 topic list | grep mission
 - publishes status on `/mission_status`
 - publishes RViz markers on `/mission_goals`
 
-## 6. What To Record For Evaluation
-
-- screenshot of RViz map versus the Gazebo warehouse world
-- screen recording of one full multi-goal run
-- notes on how many goals succeeded on the first try
-- any `RETRYING` states from `/mission_status`
-
-
